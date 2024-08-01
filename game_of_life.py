@@ -191,6 +191,7 @@ class GameOfLife(threading.Thread):
 def create_application():
     main_app = tkinter.Tk()
     main_app.state("zoomed")
+    main_app.title("Conway's Game of Life")
     return main_app
 
 def on_click(index):
