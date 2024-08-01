@@ -14,21 +14,23 @@ import tkinter
 # TODO : Improve graphics
 #
 
-'''
+RULES_STRING='''
 Rules:
 
 1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+
 2. Any live cell with two or three live neighbours lives on to the next generation.
+
 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
+
 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction
 '''
 
-COLUMN_SIZE=48
-MAX_CELLS = 1008
+COLUMN_SIZE=45
+MAX_CELLS = 1035
 CELL_SELECTED=" "
 CELL_UNSELECTED=" "
-run_flag = False
-current_year = 0
+LOOP_DELAY=0.1
 
 class CellState:
     CellStateAlive = 0
@@ -163,7 +165,7 @@ class GameOfLife(threading.Thread):
                 pass
 
             # Wait for a while before starting next iteration
-            time.sleep(0.5)
+            time.sleep(LOOP_DELAY)
 
     def stop(self, timeout=None):
         self._thread_active_flag = False
@@ -188,6 +190,7 @@ class GameOfLife(threading.Thread):
 
 def create_application():
     main_app = tkinter.Tk()
+    main_app.state("zoomed")
     return main_app
 
 def on_click(index):
@@ -199,7 +202,7 @@ def on_click(index):
 def create_cells(main_app):
     cells = list()
     for i in range(0, MAX_CELLS):
-        cell = tkinter.Button(main_app, text=CELL_UNSELECTED, borderwidth=2, height=1, width=2, relief='groove', command=partial(on_click, i))
+        cell = tkinter.Button(main_app, text=CELL_UNSELECTED, height=1, width=2, command=partial(on_click, i))
         cell.bind("<<Button-1>>")
         c = Cell()
         c.button = cell
@@ -221,10 +224,9 @@ def align_cells(cells):
 
 def game_loop():
     # Run till all cells are dead and we don't have a pause semaphore
-    global run_flag
-    global current_year
     global game
     run_button.config(state=tkinter.DISABLED)
+    reset_button.config(state=tkinter.DISABLED)
     for cell in cells:
         cell.button.config(state=tkinter.DISABLED)
     pause_button.config(state=tkinter.NORMAL)
@@ -232,19 +234,27 @@ def game_loop():
 
 def game_pause():
     # Run till all cells are dead and we don't have a pause semaphore
-    global run_flag
-    global current_year
     global game
-    run_flag = False
-    game.stop()
+    game.stop(timeout=1)
     current_year = game.getCurrentYear()
     del game
     game = GameOfLife(year_label=year_label, cells=cells)
     game.setCurrentYear(current_year)
     run_button.config(state=tkinter.NORMAL)
+    reset_button.config(state=tkinter.NORMAL)
     pause_button.config(state=tkinter.DISABLED)
     for cell in cells:
         cell.button.config(state=tkinter.NORMAL)
+
+def cell_reset():
+    # Reset all cells to make them dead
+    global game
+    for cell in cells:
+        cell.makeDead()
+    # Reset year count to 0
+    game.setCurrentYear(0)
+    # Reset year label also
+    year_label.config(text="Years: 0")
 
 # Create main application window
 main_app = create_application()
@@ -254,17 +264,25 @@ cells = create_cells(main_app)
 row, col = align_cells(cells)
 
 # Create run and pause buttons
-run_button = tkinter.Button(main_app, text="Run", borderwidth=2, width=5, height=3, relief='groove', command=game_loop)
+run_button = tkinter.Button(main_app, text="Run", borderwidth=2, width=5, height=2, relief='raised', command=game_loop, font=("Helvetica", 16))
 run_button.bind("<<Button-1>>")
-run_button.grid(row=row+1, columnspan=6, column=0)
+run_button.grid(row=row+2, column=0, columnspan=6)
 
-pause_button = tkinter.Button(main_app, state=tkinter.DISABLED, text="Pause", borderwidth=2, width=5, height=3, relief='groove', command=game_pause)
-pause_button.bind("<<Button-1>>")
-pause_button.grid(row=row+1, columnspan=10, column=10)
-
-year_label = tkinter.Label(main_app, text="Years: 0", borderwidth=2, width=10, height=3, relief='groove')
+year_label = tkinter.Label(main_app, text="Years: 0", borderwidth=2, width=10, height=3, font=("Helvetica", 16))
 year_label.bind("<<Label-1>>")
-year_label.grid(row=row+1, column=6, columnspan=4)
+year_label.grid(row=row+2, column=6, columnspan=6)
+
+pause_button = tkinter.Button(main_app, state=tkinter.DISABLED, text="Pause", borderwidth=2, width=5, height=2, relief='raised', command=game_pause, font=("Helvetica", 16))
+pause_button.bind("<<Button-1>>")
+pause_button.grid(row=row+2, column=12, columnspan=6)
+
+reset_button = tkinter.Button(main_app, text="Reset", borderwidth=2, width=5, height=2, relief='raised', command=cell_reset, font=("Helvetica", 16))
+reset_button.bind("<<Button-1>>")
+reset_button.grid(row=row+2, column=18, columnspan=6)
+
+help_label = tkinter.Label(main_app, text=RULES_STRING, borderwidth=2, wraplength=250, justify='left', font=("Helvetica", 16))
+help_label.bind("<<Label-1>>")
+help_label.grid(row=0, column=COLUMN_SIZE + 1, columnspan=4, rowspan=50)
 
 game = GameOfLife(year_label=year_label, cells=cells)
 
