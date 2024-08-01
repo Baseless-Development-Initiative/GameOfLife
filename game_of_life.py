@@ -23,8 +23,8 @@ Rules:
 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction
 '''
 
-COLUMN_SIZE=16
-MAX_CELLS = 256
+COLUMN_SIZE=48
+MAX_CELLS = 1008
 CELL_SELECTED=" "
 CELL_UNSELECTED=" "
 run_flag = False
@@ -163,7 +163,7 @@ class GameOfLife(threading.Thread):
                 pass
 
             # Wait for a while before starting next iteration
-            time.sleep(1)
+            time.sleep(0.5)
 
     def stop(self, timeout=None):
         self._thread_active_flag = False
