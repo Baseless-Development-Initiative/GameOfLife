@@ -9,6 +9,11 @@ import threading
 import time
 import tkinter
 
+#
+# TODO : Add cell wrapping to calculate neighbours
+# TODO : Improve graphics
+#
+
 '''
 Rules:
 
