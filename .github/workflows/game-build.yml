@@ -4,7 +4,6 @@ name: Build
 
 on:
   push:
-    branches: [ "feature/github-workflows" ]
 
 permissions:
   contents: write
