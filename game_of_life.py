@@ -5,9 +5,12 @@
 #
 
 from functools import partial
+import os
+from PIL import Image, ImageTk
 import threading
 import time
 import tkinter
+import pygame
 
 #
 # TODO : Add cell wrapping to calculate neighbours
@@ -31,6 +34,8 @@ MAX_CELLS = 1035
 CELL_SELECTED=" "
 CELL_UNSELECTED=" "
 LOOP_DELAY=0.1
+STATIC_PATH=os.path.dirname(os.path.abspath(__file__)) + os.sep + "_static" + os.sep
+GAME_LOGO_FILENAME="game_of_life.svg"
 
 class CellState:
     CellStateAlive = 0
@@ -192,6 +197,13 @@ def create_application():
     main_app = tkinter.Tk()
     main_app.state("zoomed")
     main_app.title("Conway's Game of Life")
+    # Convert SVG to PNG
+    logo = pygame.image.load(STATIC_PATH + GAME_LOGO_FILENAME)
+    pygame.image.save(logo, STATIC_PATH + "logo.png")
+    # Load PNG as icon
+    icon = Image.open(STATIC_PATH + "logo.png")
+    photo = ImageTk.PhotoImage(icon)
+    main_app.wm_iconphoto(False, photo)
     return main_app
 
 def on_click(index):
