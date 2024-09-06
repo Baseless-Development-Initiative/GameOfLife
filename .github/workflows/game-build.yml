@@ -1,0 +1,39 @@
+# This workflow will build the game binary
+
+name: Build
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  build-game-win:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Build game
+        run: |
+          scripts/buildWindows.bat
+  build-game-lin:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Build game
+        run: |
+          cd scripts && chmod +x buildLinux.sh && ./buildLinux.sh
